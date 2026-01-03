@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/common/identifiers.schema.json",
+  "title": "Identifier Types",
+  "description": "ID format definitions for agentics-org-manifests",
+  "$defs": {
+    "ManifestId": {
+      "$ref": "primitives.schema.json#/$defs/UUID",
+      "description": "Unique manifest identifier (UUID v4, immutable)"
+    },
+    "VersionId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}@\\d+\\.\\d+\\.\\d+$",
+      "description": "Version-qualified manifest identifier (UUID@semver)"
+    },
+    "OrganizationId": {
+      "$ref": "primitives.schema.json#/$defs/UUID",
+      "description": "Organization identifier (UUID v4, immutable)"
+    },
+    "DepartmentId": {
+      "$ref": "primitives.schema.json#/$defs/UUID",
+      "description": "Department identifier (UUID v4, immutable)"
+    },
+    "TeamId": {
+      "$ref": "primitives.schema.json#/$defs/UUID",
+      "description": "Team identifier (UUID v4, immutable)"
+    },
+    "RoleId": {
+      "$ref": "primitives.schema.json#/$defs/UUID",
+      "description": "Role identifier (UUID v4, immutable)"
+    },
+    "CapabilityId": {
+      "$ref": "primitives.schema.json#/$defs/UUID",
+      "description": "Capability identifier (UUID v4, immutable)"
+    },
+    "PolicyId": {
+      "$ref": "primitives.schema.json#/$defs/UUID",
+      "description": "Policy identifier (UUID v4, immutable)"
+    },
+    "ManifestReference": {
+      "type": "string",
+      "pattern": "^manifest://[a-z-]+/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(@(\\d+\\.\\d+\\.\\d+|sha256:[a-f0-9]{64}|latest))?(#/.+)?$",
+      "description": "Cross-manifest reference URI format: manifest://{type}/{id}@{version}#{path}"
+    }
+  }
+}

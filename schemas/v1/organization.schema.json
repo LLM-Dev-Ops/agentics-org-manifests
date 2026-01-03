@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/v1/organization.schema.json",
+  "title": "Organization Manifest",
+  "description": "Immutable organizational structure definition representing observed reality",
+  "type": "object",
+  "properties": {
+    "$manifest": {
+      "$ref": "_meta.schema.json#/$defs/ManifestMetadata"
+    },
+    "id": {
+      "$ref": "../common/identifiers.schema.json#/$defs/OrganizationId",
+      "description": "Unique organization identifier (UUID v4, immutable)"
+    },
+    "name": {
+      "$ref": "../common/primitives.schema.json#/$defs/NonEmptyString",
+      "description": "Organization display name"
+    },
+    "legalName": {
+      "$ref": "../common/primitives.schema.json#/$defs/NonEmptyString",
+      "description": "Legal registered name of the organization"
+    },
+    "incorporationCountry": {
+      "$ref": "../common/primitives.schema.json#/$defs/ISO3166Alpha2",
+      "description": "Country of incorporation (ISO 3166-1 alpha-2)"
+    },
+    "fiscalYearEnd": {
+      "$ref": "../common/timestamps.schema.json#/$defs/FiscalYearEnd",
+      "description": "Fiscal year end date (MM-DD format)"
+    },
+    "observedAt": {
+      "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+      "description": "When this organizational state was observed"
+    },
+    "dataSource": {
+      "$ref": "_meta.schema.json#/$defs/DataSource",
+      "description": "Authoritative source of this organizational data"
+    },
+    "departments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Department"
+      },
+      "description": "List of departments within the organization"
+    }
+  },
+  "required": [
+    "$manifest",
+    "id",
+    "name",
+    "legalName",
+    "incorporationCountry",
+    "fiscalYearEnd",
+    "observedAt",
+    "dataSource"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Department": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "../common/identifiers.schema.json#/$defs/DepartmentId",
+          "description": "Unique department identifier (UUID v4, immutable)"
+        },
+        "organizationId": {
+          "$ref": "../common/identifiers.schema.json#/$defs/OrganizationId",
+          "description": "Parent organization identifier (foreign key)"
+        },
+        "name": {
+          "$ref": "../common/primitives.schema.json#/$defs/NonEmptyString",
+          "description": "Department name"
+        },
+        "costCenter": {
+          "type": "string",
+          "maxLength": 50,
+          "description": "Cost center code for financial allocation"
+        },
+        "headcount": {
+          "$ref": "../common/primitives.schema.json#/$defs/PositiveInteger",
+          "description": "Number of employees in the department"
+        },
+        "parentDepartmentId": {
+          "oneOf": [
+            { "$ref": "../common/identifiers.schema.json#/$defs/DepartmentId" },
+            { "type": "null" }
+          ],
+          "description": "Parent department for hierarchical structures (null for top-level)"
+        },
+        "observedAt": {
+          "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+          "description": "When this department state was observed"
+        }
+      },
+      "required": [
+        "id",
+        "organizationId",
+        "name",
+        "headcount",
+        "observedAt"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

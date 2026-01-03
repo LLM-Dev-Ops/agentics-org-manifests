@@ -1,0 +1,14 @@
+{
+  "$manifest": {
+    "version": "invalid-version",
+    "contentHash": "not-a-valid-hash",
+    "createdAt": "not-a-date"
+  },
+  "id": "invalid-uuid-format",
+  "name": "",
+  "legalName": 12345,
+  "incorporationCountry": "INVALID",
+  "fiscalYearEnd": "31-12",
+  "observedAt": "invalid-timestamp",
+  "departments": "should-be-array"
+}

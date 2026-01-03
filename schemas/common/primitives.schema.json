@@ -1,0 +1,59 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/common/primitives.schema.json",
+  "title": "Common Primitive Types",
+  "description": "Shared primitive type definitions for agentics-org-manifests",
+  "$defs": {
+    "UUID": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+      "description": "UUID v4 format identifier"
+    },
+    "ContentHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$",
+      "description": "SHA-256 content hash in format sha256:{hex}"
+    },
+    "SemVer": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version number (MAJOR.MINOR.PATCH)"
+    },
+    "ISODateTime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime format"
+    },
+    "ISODate": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date format (YYYY-MM-DD)"
+    },
+    "ISO3166Alpha2": {
+      "type": "string",
+      "pattern": "^[A-Z]{2}$",
+      "description": "ISO 3166-1 alpha-2 country code"
+    },
+    "NonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "Non-empty string with maximum length constraint"
+    },
+    "PositiveInteger": {
+      "type": "integer",
+      "minimum": 0,
+      "description": "Non-negative integer value"
+    },
+    "Email": {
+      "type": "string",
+      "format": "email",
+      "description": "Valid email address format"
+    },
+    "URI": {
+      "type": "string",
+      "format": "uri",
+      "description": "Valid URI format"
+    }
+  }
+}

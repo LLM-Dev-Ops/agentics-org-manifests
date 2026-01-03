@@ -1,0 +1,100 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/v1/capability.schema.json",
+  "title": "Capability Manifest",
+  "description": "Capability taxonomy definition for organizational skills and competencies",
+  "type": "object",
+  "properties": {
+    "$manifest": {
+      "$ref": "_meta.schema.json#/$defs/ManifestMetadata"
+    },
+    "id": {
+      "$ref": "../common/identifiers.schema.json#/$defs/CapabilityId",
+      "description": "Unique capability identifier (UUID v4, immutable)"
+    },
+    "name": {
+      "$ref": "../common/primitives.schema.json#/$defs/NonEmptyString",
+      "description": "Capability name"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "technical",
+        "business",
+        "leadership",
+        "communication",
+        "analytical",
+        "creative",
+        "operational",
+        "regulatory",
+        "domain-specific"
+      ],
+      "description": "Primary category of the capability"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Detailed description of the capability"
+    },
+    "parentCapabilityId": {
+      "oneOf": [
+        { "$ref": "../common/identifiers.schema.json#/$defs/CapabilityId" },
+        { "type": "null" }
+      ],
+      "description": "Parent capability for hierarchical taxonomy (null for root capabilities)"
+    },
+    "proficiencyLevels": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ProficiencyLevel"
+      },
+      "minItems": 1,
+      "description": "Defined proficiency levels for this capability"
+    },
+    "organizationId": {
+      "$ref": "../common/identifiers.schema.json#/$defs/OrganizationId",
+      "description": "Organization this capability taxonomy belongs to"
+    },
+    "observedAt": {
+      "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+      "description": "When this capability definition was observed"
+    },
+    "dataSource": {
+      "$ref": "_meta.schema.json#/$defs/DataSource",
+      "description": "Authoritative source of this capability data"
+    }
+  },
+  "required": [
+    "$manifest",
+    "id",
+    "name",
+    "category",
+    "observedAt"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ProficiencyLevel": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5,
+          "description": "Numeric proficiency level (1-5)"
+        },
+        "name": {
+          "type": "string",
+          "enum": ["novice", "beginner", "intermediate", "advanced", "expert"],
+          "description": "Named proficiency level"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Description of what this proficiency level means"
+        }
+      },
+      "required": ["level", "name"],
+      "additionalProperties": false
+    }
+  }
+}

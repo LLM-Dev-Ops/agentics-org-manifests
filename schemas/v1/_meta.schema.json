@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/v1/_meta.schema.json",
+  "title": "Manifest Metadata Schema",
+  "description": "Schema for the $manifest metadata block required in all manifests",
+  "type": "object",
+  "$defs": {
+    "ManifestMetadata": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "$ref": "../common/primitives.schema.json#/$defs/SemVer",
+          "description": "Semantic version of this manifest"
+        },
+        "contentHash": {
+          "$ref": "../common/primitives.schema.json#/$defs/ContentHash",
+          "description": "SHA-256 hash of the manifest content (excluding this field)"
+        },
+        "createdAt": {
+          "$ref": "../common/timestamps.schema.json#/$defs/CreatedAt",
+          "description": "ISO 8601 datetime when this manifest version was created"
+        },
+        "lineage": {
+          "$ref": "#/$defs/LineageChain",
+          "description": "Lineage chain linking to predecessor versions"
+        }
+      },
+      "required": ["version", "contentHash", "createdAt"],
+      "additionalProperties": false
+    },
+    "LineageChain": {
+      "type": "object",
+      "properties": {
+        "root": {
+          "$ref": "../common/primitives.schema.json#/$defs/ContentHash",
+          "description": "Content hash of the genesis manifest"
+        },
+        "parent": {
+          "oneOf": [
+            { "$ref": "../common/primitives.schema.json#/$defs/ContentHash" },
+            { "type": "null" }
+          ],
+          "description": "Content hash of the immediate predecessor (null for genesis)"
+        },
+        "depth": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Chain depth from root (0 for genesis)"
+        },
+        "branchId": {
+          "oneOf": [
+            { "$ref": "../common/primitives.schema.json#/$defs/UUID" },
+            { "type": "null" }
+          ],
+          "description": "Branch identifier for branched manifests (null for main lineage)"
+        }
+      },
+      "required": ["root", "parent", "depth"],
+      "additionalProperties": false
+    },
+    "DataSource": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": [
+            "hr-system",
+            "legal-records",
+            "manual-attestation",
+            "cmdb",
+            "identity-provider",
+            "compliance-system",
+            "network-management"
+          ],
+          "description": "Type of authoritative data source"
+        },
+        "identifier": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 255,
+          "description": "Unique identifier of the source system instance"
+        },
+        "extractedAt": {
+          "$ref": "../common/timestamps.schema.json#/$defs/ExtractedAt",
+          "description": "When data was extracted from the source"
+        }
+      },
+      "required": ["type", "identifier", "extractedAt"],
+      "additionalProperties": false
+    }
+  }
+}

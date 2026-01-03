@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/common/timestamps.schema.json",
+  "title": "Temporal Types",
+  "description": "Timestamp and temporal type definitions for agentics-org-manifests",
+  "$defs": {
+    "ObservedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime when the data was observed in the source system"
+    },
+    "CreatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime when the manifest was created"
+    },
+    "ExtractedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 datetime when data was extracted from source"
+    },
+    "EffectiveDate": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date when a policy or rule becomes effective"
+    },
+    "ExpirationDate": {
+      "type": "string",
+      "format": "date",
+      "description": "ISO 8601 date when a certification or policy expires"
+    },
+    "FiscalYearEnd": {
+      "type": "string",
+      "pattern": "^(0[1-9]|1[0-2])-(0[1-9]|[12][0-9]|3[01])$",
+      "description": "Fiscal year end date in MM-DD format"
+    },
+    "TemporalRange": {
+      "type": "object",
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Range start datetime"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Range end datetime"
+        }
+      },
+      "required": ["start"],
+      "additionalProperties": false,
+      "description": "Temporal range with required start and optional end"
+    }
+  }
+}

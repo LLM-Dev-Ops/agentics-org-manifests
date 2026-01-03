@@ -1,0 +1,190 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/v1/policy.schema.json",
+  "title": "Policy Manifest",
+  "description": "Governance policy definition with constraints and enforcement rules",
+  "type": "object",
+  "properties": {
+    "$manifest": {
+      "$ref": "_meta.schema.json#/$defs/ManifestMetadata"
+    },
+    "id": {
+      "$ref": "../common/identifiers.schema.json#/$defs/PolicyId",
+      "description": "Unique policy identifier (UUID v4, immutable)"
+    },
+    "name": {
+      "$ref": "../common/primitives.schema.json#/$defs/NonEmptyString",
+      "description": "Policy name"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 4000,
+      "description": "Detailed description of the policy"
+    },
+    "type": {
+      "type": "string",
+      "enum": ["governance", "security", "compliance", "operational", "data", "access"],
+      "description": "Type classification of the policy"
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Constraint"
+      },
+      "description": "List of constraints defined by this policy"
+    },
+    "effectiveDate": {
+      "$ref": "../common/timestamps.schema.json#/$defs/EffectiveDate",
+      "description": "Date when this policy becomes effective"
+    },
+    "expirationDate": {
+      "oneOf": [
+        { "$ref": "../common/timestamps.schema.json#/$defs/ExpirationDate" },
+        { "type": "null" }
+      ],
+      "description": "Date when this policy expires (null for no expiration)"
+    },
+    "scope": {
+      "$ref": "#/$defs/PolicyScope",
+      "description": "Scope of policy applicability"
+    },
+    "enforcementLevel": {
+      "type": "string",
+      "enum": ["mandatory", "recommended", "optional"],
+      "description": "Level of enforcement for this policy"
+    },
+    "organizationId": {
+      "$ref": "../common/identifiers.schema.json#/$defs/OrganizationId",
+      "description": "Organization this policy belongs to"
+    },
+    "observedAt": {
+      "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+      "description": "When this policy was observed in effect"
+    },
+    "dataSource": {
+      "$ref": "_meta.schema.json#/$defs/DataSource",
+      "description": "Authoritative source of this policy data"
+    }
+  },
+  "required": [
+    "$manifest",
+    "id",
+    "name",
+    "type",
+    "constraints",
+    "effectiveDate",
+    "enforcementLevel",
+    "observedAt"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Constraint": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "../common/primitives.schema.json#/$defs/UUID",
+          "description": "Unique constraint identifier"
+        },
+        "name": {
+          "$ref": "../common/primitives.schema.json#/$defs/NonEmptyString",
+          "description": "Constraint name"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Description of the constraint"
+        },
+        "constraintType": {
+          "type": "string",
+          "enum": [
+            "approval-required",
+            "limit",
+            "restriction",
+            "requirement",
+            "prohibition",
+            "condition"
+          ],
+          "description": "Type of constraint"
+        },
+        "target": {
+          "$ref": "#/$defs/ConstraintTarget",
+          "description": "What this constraint applies to"
+        },
+        "condition": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Condition expression for the constraint"
+        },
+        "severity": {
+          "type": "string",
+          "enum": ["critical", "high", "medium", "low"],
+          "description": "Severity level of constraint violation"
+        }
+      },
+      "required": ["id", "name", "constraintType", "target"],
+      "additionalProperties": false
+    },
+    "ConstraintTarget": {
+      "type": "object",
+      "properties": {
+        "targetType": {
+          "type": "string",
+          "enum": [
+            "organization",
+            "department",
+            "team",
+            "role",
+            "system",
+            "data",
+            "process",
+            "resource"
+          ],
+          "description": "Type of entity the constraint targets"
+        },
+        "targetIds": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/primitives.schema.json#/$defs/UUID"
+          },
+          "description": "Specific entity IDs (empty array means all entities of type)"
+        }
+      },
+      "required": ["targetType"],
+      "additionalProperties": false
+    },
+    "PolicyScope": {
+      "type": "object",
+      "properties": {
+        "departments": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/identifiers.schema.json#/$defs/DepartmentId"
+          },
+          "description": "Departments this policy applies to (empty means organization-wide)"
+        },
+        "teams": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/identifiers.schema.json#/$defs/TeamId"
+          },
+          "description": "Specific teams this policy applies to"
+        },
+        "roles": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/identifiers.schema.json#/$defs/RoleId"
+          },
+          "description": "Roles this policy applies to"
+        },
+        "regions": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/primitives.schema.json#/$defs/ISO3166Alpha2"
+          },
+          "description": "Geographic regions this policy applies to"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

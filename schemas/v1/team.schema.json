@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/v1/team.schema.json",
+  "title": "Team Manifest",
+  "description": "Team composition and structure definition representing observed reality",
+  "type": "object",
+  "properties": {
+    "$manifest": {
+      "$ref": "_meta.schema.json#/$defs/ManifestMetadata"
+    },
+    "id": {
+      "$ref": "../common/identifiers.schema.json#/$defs/TeamId",
+      "description": "Unique team identifier (UUID v4, immutable)"
+    },
+    "departmentId": {
+      "$ref": "../common/identifiers.schema.json#/$defs/DepartmentId",
+      "description": "Parent department identifier (foreign key)"
+    },
+    "name": {
+      "$ref": "../common/primitives.schema.json#/$defs/NonEmptyString",
+      "description": "Team name"
+    },
+    "function": {
+      "type": "string",
+      "enum": [
+        "engineering",
+        "operations",
+        "support",
+        "sales",
+        "marketing",
+        "finance",
+        "legal",
+        "hr",
+        "product",
+        "design",
+        "data",
+        "security",
+        "infrastructure",
+        "quality-assurance",
+        "research",
+        "customer-success",
+        "other"
+      ],
+      "description": "Primary functional area of the team"
+    },
+    "headcount": {
+      "$ref": "../common/primitives.schema.json#/$defs/PositiveInteger",
+      "description": "Number of members in the team"
+    },
+    "observedAt": {
+      "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+      "description": "When this team state was observed"
+    },
+    "dataSource": {
+      "$ref": "_meta.schema.json#/$defs/DataSource",
+      "description": "Authoritative source of this team data"
+    },
+    "systemOwnerships": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SystemOwnership"
+      },
+      "description": "Systems owned or maintained by this team"
+    }
+  },
+  "required": [
+    "$manifest",
+    "id",
+    "departmentId",
+    "name",
+    "function",
+    "headcount",
+    "observedAt"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "SystemOwnership": {
+      "type": "object",
+      "properties": {
+        "systemId": {
+          "$ref": "../common/primitives.schema.json#/$defs/UUID",
+          "description": "Identifier of the owned system"
+        },
+        "ownershipType": {
+          "type": "string",
+          "enum": ["primary", "secondary", "on-call", "contributor"],
+          "description": "Type of ownership relationship"
+        },
+        "since": {
+          "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+          "description": "When ownership was established"
+        }
+      },
+      "required": ["systemId", "ownershipType", "since"],
+      "additionalProperties": false
+    }
+  }
+}

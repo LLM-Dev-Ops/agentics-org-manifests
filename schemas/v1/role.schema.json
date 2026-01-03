@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/v1/role.schema.json",
+  "title": "Role Manifest",
+  "description": "Role definition with permissions and level classification",
+  "type": "object",
+  "properties": {
+    "$manifest": {
+      "$ref": "_meta.schema.json#/$defs/ManifestMetadata"
+    },
+    "id": {
+      "$ref": "../common/identifiers.schema.json#/$defs/RoleId",
+      "description": "Unique role identifier (UUID v4, immutable)"
+    },
+    "name": {
+      "$ref": "../common/primitives.schema.json#/$defs/NonEmptyString",
+      "description": "Role name"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Detailed description of the role responsibilities"
+    },
+    "level": {
+      "type": "string",
+      "enum": ["junior", "mid", "senior", "lead", "principal", "executive"],
+      "description": "Seniority level of the role"
+    },
+    "permissions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Permission"
+      },
+      "description": "List of permissions granted to this role"
+    },
+    "requiredCapabilities": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/identifiers.schema.json#/$defs/CapabilityId"
+      },
+      "description": "Capabilities required for this role"
+    },
+    "organizationId": {
+      "$ref": "../common/identifiers.schema.json#/$defs/OrganizationId",
+      "description": "Organization this role belongs to"
+    },
+    "observedAt": {
+      "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+      "description": "When this role definition was observed"
+    },
+    "dataSource": {
+      "$ref": "_meta.schema.json#/$defs/DataSource",
+      "description": "Authoritative source of this role data"
+    }
+  },
+  "required": [
+    "$manifest",
+    "id",
+    "name",
+    "level",
+    "permissions",
+    "observedAt"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Permission": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*:[a-z][a-z0-9-]*(:[a-z][a-z0-9-]*)*$",
+      "description": "Permission string in format resource:action or resource:action:scope"
+    }
+  }
+}

@@ -1,0 +1,264 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/evolution/compatibility-matrix.json",
+  "title": "Schema Version Compatibility Matrix",
+  "description": "Defines version compatibility relationships and migration paths between schema versions",
+  "type": "object",
+  "properties": {
+    "matrixVersion": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Version of this compatibility matrix document"
+    },
+    "generatedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this matrix was generated"
+    },
+    "schemas": {
+      "type": "object",
+      "additionalProperties": {
+        "$ref": "#/$defs/SchemaVersionHistory"
+      },
+      "description": "Version history and compatibility for each schema type"
+    },
+    "globalCompatibility": {
+      "$ref": "#/$defs/GlobalCompatibilityRules",
+      "description": "Global compatibility rules applying to all schemas"
+    }
+  },
+  "required": ["matrixVersion", "generatedAt", "schemas", "globalCompatibility"],
+  "additionalProperties": false,
+  "$defs": {
+    "SchemaVersionHistory": {
+      "type": "object",
+      "properties": {
+        "schemaId": {
+          "type": "string",
+          "description": "Schema identifier (e.g., organization, team, role)"
+        },
+        "currentVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Current stable version"
+        },
+        "minimumSupportedVersion": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Oldest version still supported"
+        },
+        "versions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/VersionEntry"
+          },
+          "description": "List of all versions with their metadata"
+        }
+      },
+      "required": ["schemaId", "currentVersion", "minimumSupportedVersion", "versions"],
+      "additionalProperties": false
+    },
+    "VersionEntry": {
+      "type": "object",
+      "properties": {
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Version number"
+        },
+        "releasedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When this version was released"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["current", "supported", "deprecated", "unsupported"],
+          "description": "Current status of this version"
+        },
+        "deprecationDate": {
+          "type": "string",
+          "format": "date",
+          "description": "When this version was deprecated (if applicable)"
+        },
+        "sunsetDate": {
+          "type": "string",
+          "format": "date",
+          "description": "When support ends for this version"
+        },
+        "breaking": {
+          "type": "boolean",
+          "description": "Whether this version contains breaking changes from predecessor"
+        },
+        "predecessor": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "Previous version number"
+        },
+        "migrationPath": {
+          "type": "string",
+          "description": "Path to migration script from predecessor"
+        },
+        "changes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ChangeEntry"
+          },
+          "description": "List of changes in this version"
+        }
+      },
+      "required": ["version", "releasedAt", "status", "breaking"],
+      "additionalProperties": false
+    },
+    "ChangeEntry": {
+      "type": "object",
+      "properties": {
+        "changeType": {
+          "type": "string",
+          "enum": [
+            "field-added",
+            "field-removed",
+            "field-renamed",
+            "field-type-changed",
+            "enum-value-added",
+            "enum-value-removed",
+            "constraint-added",
+            "constraint-removed",
+            "constraint-modified",
+            "description-updated"
+          ],
+          "description": "Type of change"
+        },
+        "path": {
+          "type": "string",
+          "description": "JSON path to the changed element"
+        },
+        "description": {
+          "type": "string",
+          "description": "Human-readable description of the change"
+        },
+        "breaking": {
+          "type": "boolean",
+          "description": "Whether this specific change is breaking"
+        }
+      },
+      "required": ["changeType", "path", "description", "breaking"],
+      "additionalProperties": false
+    },
+    "GlobalCompatibilityRules": {
+      "type": "object",
+      "properties": {
+        "deprecationNoticeVersions": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of versions before removal that deprecation notice is given"
+        },
+        "migrationWindowDays": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of days consumers have to migrate"
+        },
+        "backwardCompatibleWithinMajor": {
+          "type": "boolean",
+          "description": "Whether all minor/patch versions are backward compatible within a major version"
+        },
+        "supportedMajorVersions": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of major versions simultaneously supported"
+        }
+      },
+      "required": [
+        "deprecationNoticeVersions",
+        "migrationWindowDays",
+        "backwardCompatibleWithinMajor",
+        "supportedMajorVersions"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "examples": [
+    {
+      "matrixVersion": "1.0.0",
+      "generatedAt": "2026-01-02T00:00:00Z",
+      "schemas": {
+        "organization": {
+          "schemaId": "organization",
+          "currentVersion": "1.0.0",
+          "minimumSupportedVersion": "1.0.0",
+          "versions": [
+            {
+              "version": "1.0.0",
+              "releasedAt": "2026-01-02T00:00:00Z",
+              "status": "current",
+              "breaking": false,
+              "changes": []
+            }
+          ]
+        },
+        "team": {
+          "schemaId": "team",
+          "currentVersion": "1.0.0",
+          "minimumSupportedVersion": "1.0.0",
+          "versions": [
+            {
+              "version": "1.0.0",
+              "releasedAt": "2026-01-02T00:00:00Z",
+              "status": "current",
+              "breaking": false,
+              "changes": []
+            }
+          ]
+        },
+        "role": {
+          "schemaId": "role",
+          "currentVersion": "1.0.0",
+          "minimumSupportedVersion": "1.0.0",
+          "versions": [
+            {
+              "version": "1.0.0",
+              "releasedAt": "2026-01-02T00:00:00Z",
+              "status": "current",
+              "breaking": false,
+              "changes": []
+            }
+          ]
+        },
+        "capability": {
+          "schemaId": "capability",
+          "currentVersion": "1.0.0",
+          "minimumSupportedVersion": "1.0.0",
+          "versions": [
+            {
+              "version": "1.0.0",
+              "releasedAt": "2026-01-02T00:00:00Z",
+              "status": "current",
+              "breaking": false,
+              "changes": []
+            }
+          ]
+        },
+        "policy": {
+          "schemaId": "policy",
+          "currentVersion": "1.0.0",
+          "minimumSupportedVersion": "1.0.0",
+          "versions": [
+            {
+              "version": "1.0.0",
+              "releasedAt": "2026-01-02T00:00:00Z",
+              "status": "current",
+              "breaking": false,
+              "changes": []
+            }
+          ]
+        }
+      },
+      "globalCompatibility": {
+        "deprecationNoticeVersions": 2,
+        "migrationWindowDays": 90,
+        "backwardCompatibleWithinMajor": true,
+        "supportedMajorVersions": 2
+      }
+    }
+  ]
+}

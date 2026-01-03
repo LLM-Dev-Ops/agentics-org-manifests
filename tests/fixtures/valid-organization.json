@@ -1,0 +1,43 @@
+{
+  "$manifest": {
+    "version": "1.0.0",
+    "contentHash": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "createdAt": "2024-01-15T10:30:00.000Z",
+    "lineage": {
+      "root": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "parent": null,
+      "depth": 0
+    }
+  },
+  "id": "550e8400-e29b-41d4-a716-446655440001",
+  "name": "Agentics Corporation",
+  "legalName": "Agentics Inc.",
+  "incorporationCountry": "US",
+  "fiscalYearEnd": "12-31",
+  "observedAt": "2024-01-15T10:30:00.000Z",
+  "dataSource": {
+    "type": "legal-records",
+    "identifier": "sec-edgar-cik-0001234567",
+    "extractedAt": "2024-01-15T10:00:00.000Z"
+  },
+  "departments": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440002",
+      "organizationId": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Engineering",
+      "costCenter": "ENG-001",
+      "headcount": 150,
+      "parentDepartmentId": null,
+      "observedAt": "2024-01-15T10:30:00.000Z"
+    },
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440003",
+      "organizationId": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Product",
+      "costCenter": "PRD-001",
+      "headcount": 45,
+      "parentDepartmentId": null,
+      "observedAt": "2024-01-15T10:30:00.000Z"
+    }
+  ]
+}
