@@ -23,7 +23,17 @@
     },
     "type": {
       "type": "string",
-      "enum": ["governance", "security", "compliance", "operational", "data", "access"],
+      "enum": [
+        "governance",
+        "security",
+        "compliance",
+        "operational",
+        "data",
+        "access",
+        "repository-access",
+        "simulation-governance",
+        "financial-artifact-governance"
+      ],
       "description": "Type classification of the policy"
     },
     "constraints": {
@@ -137,7 +147,10 @@
             "system",
             "data",
             "process",
-            "resource"
+            "resource",
+            "repository",
+            "simulation-output",
+            "financial-artifact"
           ],
           "description": "Type of entity the constraint targets"
         },

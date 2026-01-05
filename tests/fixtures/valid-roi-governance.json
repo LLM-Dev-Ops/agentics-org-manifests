@@ -1,0 +1,202 @@
+{
+  "$manifest": {
+    "version": "1.1.0",
+    "contentHash": "sha256:b2c3d4e5f678901234567890123456789012345678901234567890123456bc",
+    "createdAt": "2026-01-05T10:00:00.000Z",
+    "lineage": {
+      "root": "sha256:b2c3d4e5f678901234567890123456789012345678901234567890123456bc",
+      "parent": null,
+      "depth": 0
+    }
+  },
+  "id": "660e8400-e29b-41d4-a716-446655440011",
+  "repository": "enterprise-roi-engine",
+  "organizationId": "550e8400-e29b-41d4-a716-446655440001",
+  "description": "Governance manifest for the Enterprise ROI Engine. Controls access to CFO-grade financial impact artifacts and executive summaries.",
+  "financialArtifactGovernance": {
+    "artifactTypeAccess": [
+      {
+        "artifactType": "roi-calculation",
+        "accessGrants": [
+          {
+            "roleId": "770e8400-e29b-41d4-a716-446655440050",
+            "accessRole": "read-only",
+            "environments": ["staging", "production", "executive-review"]
+          }
+        ],
+        "minimumSensitivityLevel": "CONFIDENTIAL"
+      },
+      {
+        "artifactType": "executive-summary",
+        "accessGrants": [
+          {
+            "roleId": "770e8400-e29b-41d4-a716-446655440060",
+            "accessRole": "read-only",
+            "environments": ["executive-review", "production"]
+          }
+        ],
+        "minimumSensitivityLevel": "CFO_ONLY"
+      },
+      {
+        "artifactType": "detailed-breakdown",
+        "accessGrants": [
+          {
+            "teamId": "880e8400-e29b-41d4-a716-446655440070",
+            "accessRole": "read-only",
+            "environments": ["development", "staging"]
+          }
+        ],
+        "minimumSensitivityLevel": "INTERNAL"
+      },
+      {
+        "artifactType": "audit-trail",
+        "accessGrants": [
+          {
+            "departmentId": "550e8400-e29b-41d4-a716-446655440080",
+            "accessRole": "read-only",
+            "environments": ["audit-only"]
+          }
+        ],
+        "minimumSensitivityLevel": "RESTRICTED"
+      }
+    ],
+    "defaultDeny": true,
+    "sensitivityLevels": [
+      {
+        "level": "PUBLIC",
+        "description": "Non-sensitive financial summaries for external reporting",
+        "rank": 0,
+        "requiredRoles": []
+      },
+      {
+        "level": "INTERNAL",
+        "description": "Internal financial data for departmental planning",
+        "rank": 1,
+        "requiredRoles": ["770e8400-e29b-41d4-a716-446655440090"]
+      },
+      {
+        "level": "CONFIDENTIAL",
+        "description": "Confidential financial projections and analysis",
+        "rank": 2,
+        "requiredRoles": ["770e8400-e29b-41d4-a716-446655440050"]
+      },
+      {
+        "level": "RESTRICTED",
+        "description": "Restricted financial data requiring special clearance",
+        "rank": 3,
+        "requiredRoles": ["770e8400-e29b-41d4-a716-446655440100"]
+      },
+      {
+        "level": "CFO_ONLY",
+        "description": "CFO-grade financial insights and strategic projections",
+        "rank": 4,
+        "requiredRoles": ["770e8400-e29b-41d4-a716-446655440060"]
+      }
+    ],
+    "auditRequirements": {
+      "logLevel": "forensic",
+      "retentionDays": 2555,
+      "immutableAuditTrail": true,
+      "realTimeAlerts": true
+    }
+  },
+  "executiveVisibility": {
+    "cfoAccessGrants": [
+      {
+        "roleId": "770e8400-e29b-41d4-a716-446655440060",
+        "accessRole": "read-only",
+        "environments": ["executive-review", "production"]
+      }
+    ],
+    "executiveDashboardGrants": [
+      {
+        "roleId": "770e8400-e29b-41d4-a716-446655440110",
+        "accessRole": "read-only",
+        "environments": ["executive-review"]
+      }
+    ],
+    "boardReportGrants": [
+      {
+        "roleId": "770e8400-e29b-41d4-a716-446655440120",
+        "accessRole": "read-only",
+        "environments": ["executive-review"],
+        "constraints": [
+          {
+            "constraintType": "approval-required",
+            "description": "Board report access requires CFO pre-approval"
+          },
+          {
+            "constraintType": "audit-logged",
+            "description": "All board report access is logged for SOX compliance"
+          }
+        ]
+      }
+    ],
+    "visibilityBoundary": {
+      "boundaryType": "organization-internal",
+      "redactionLevel": "pii-redacted"
+    },
+    "aggregationRules": {
+      "departmentLevelAggregation": true,
+      "minimumAggregationThreshold": 5,
+      "excludedFields": [
+        "$.employeeCompensation",
+        "$.individualPerformance",
+        "$.vendorPricing"
+      ],
+      "roundingRules": {
+        "currency": "thousands",
+        "percentages": 1
+      }
+    }
+  },
+  "dataIntegrationGovernance": {
+    "allowedIntegrations": [
+      {
+        "integrationType": "erp-read",
+        "accessGrants": [
+          {
+            "teamId": "880e8400-e29b-41d4-a716-446655440130",
+            "accessRole": "read-only",
+            "environments": ["staging", "production"]
+          }
+        ],
+        "environments": ["staging", "production"]
+      },
+      {
+        "integrationType": "reporting-export",
+        "accessGrants": [
+          {
+            "roleId": "770e8400-e29b-41d4-a716-446655440050",
+            "accessRole": "read-only",
+            "environments": ["production"]
+          }
+        ],
+        "environments": ["production"]
+      }
+    ],
+    "dataExportRestrictions": {
+      "requireApproval": true,
+      "approverRoles": ["770e8400-e29b-41d4-a716-446655440060"],
+      "maxExportRecords": 10000,
+      "allowedFormats": ["pdf", "xlsx"],
+      "watermarkRequired": true
+    }
+  },
+  "complianceClassification": {
+    "dataClassification": "regulatory-sensitive",
+    "regulatoryFrameworks": ["SOX", "SOC2", "ISO27001"],
+    "retentionRequirements": {
+      "minimumDays": 2555,
+      "maximumDays": 3650
+    }
+  },
+  "effectiveDate": "2026-01-01",
+  "expirationDate": null,
+  "observedAt": "2026-01-05T10:00:00.000Z",
+  "dataSource": {
+    "type": "compliance-system",
+    "identifier": "financial-governance-registry",
+    "extractedAt": "2026-01-05T09:30:00.000Z"
+  }
+}

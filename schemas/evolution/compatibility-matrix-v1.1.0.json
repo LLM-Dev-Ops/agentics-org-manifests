@@ -1,0 +1,202 @@
+{
+  "matrixVersion": "1.1.0",
+  "generatedAt": "2026-01-05T12:00:00Z",
+  "schemas": {
+    "organization": {
+      "schemaId": "organization",
+      "currentVersion": "1.1.0",
+      "minimumSupportedVersion": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "releasedAt": "2026-01-02T00:00:00Z",
+          "status": "supported",
+          "breaking": false,
+          "changes": []
+        },
+        {
+          "version": "1.1.0",
+          "releasedAt": "2026-01-05T00:00:00Z",
+          "status": "current",
+          "breaking": false,
+          "predecessor": "1.0.0",
+          "changes": [
+            {
+              "changeType": "field-added",
+              "path": "$.repositoryGovernance",
+              "description": "Added optional array field for references to repository governance manifests",
+              "breaking": false
+            }
+          ]
+        }
+      ]
+    },
+    "team": {
+      "schemaId": "team",
+      "currentVersion": "1.0.0",
+      "minimumSupportedVersion": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "releasedAt": "2026-01-02T00:00:00Z",
+          "status": "current",
+          "breaking": false,
+          "changes": []
+        }
+      ]
+    },
+    "role": {
+      "schemaId": "role",
+      "currentVersion": "1.0.0",
+      "minimumSupportedVersion": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "releasedAt": "2026-01-02T00:00:00Z",
+          "status": "current",
+          "breaking": false,
+          "changes": []
+        }
+      ]
+    },
+    "capability": {
+      "schemaId": "capability",
+      "currentVersion": "1.0.0",
+      "minimumSupportedVersion": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "releasedAt": "2026-01-02T00:00:00Z",
+          "status": "current",
+          "breaking": false,
+          "changes": []
+        }
+      ]
+    },
+    "policy": {
+      "schemaId": "policy",
+      "currentVersion": "1.1.0",
+      "minimumSupportedVersion": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "releasedAt": "2026-01-02T00:00:00Z",
+          "status": "supported",
+          "breaking": false,
+          "changes": []
+        },
+        {
+          "version": "1.1.0",
+          "releasedAt": "2026-01-05T00:00:00Z",
+          "status": "current",
+          "breaking": false,
+          "predecessor": "1.0.0",
+          "changes": [
+            {
+              "changeType": "enum-value-added",
+              "path": "$.type",
+              "description": "Added repository-access, simulation-governance, financial-artifact-governance policy types",
+              "breaking": false
+            },
+            {
+              "changeType": "enum-value-added",
+              "path": "$.$defs.ConstraintTarget.properties.targetType",
+              "description": "Added repository, simulation-output, financial-artifact target types",
+              "breaking": false
+            }
+          ]
+        }
+      ]
+    },
+    "repository-governance": {
+      "schemaId": "repository-governance",
+      "currentVersion": "1.0.0",
+      "minimumSupportedVersion": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "releasedAt": "2026-01-05T00:00:00Z",
+          "status": "current",
+          "breaking": false,
+          "changes": [
+            {
+              "changeType": "field-added",
+              "path": "$",
+              "description": "New schema for declarative repository access governance",
+              "breaking": false
+            }
+          ]
+        }
+      ]
+    },
+    "simulation-engine-governance": {
+      "schemaId": "simulation-engine-governance",
+      "currentVersion": "1.0.0",
+      "minimumSupportedVersion": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "releasedAt": "2026-01-05T00:00:00Z",
+          "status": "current",
+          "breaking": false,
+          "changes": [
+            {
+              "changeType": "field-added",
+              "path": "$",
+              "description": "New schema for agentics-simulation-engine governance with initiation and output visibility controls",
+              "breaking": false
+            }
+          ]
+        }
+      ]
+    },
+    "roi-engine-governance": {
+      "schemaId": "roi-engine-governance",
+      "currentVersion": "1.0.0",
+      "minimumSupportedVersion": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "releasedAt": "2026-01-05T00:00:00Z",
+          "status": "current",
+          "breaking": false,
+          "changes": [
+            {
+              "changeType": "field-added",
+              "path": "$",
+              "description": "New schema for enterprise-roi-engine governance with financial artifact access and executive visibility controls",
+              "breaking": false
+            }
+          ]
+        }
+      ]
+    },
+    "access-governance": {
+      "schemaId": "access-governance",
+      "currentVersion": "1.0.0",
+      "minimumSupportedVersion": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "releasedAt": "2026-01-05T00:00:00Z",
+          "status": "current",
+          "breaking": false,
+          "changes": [
+            {
+              "changeType": "field-added",
+              "path": "$",
+              "description": "New common schema with EnvironmentScope, AccessRole, AccessGrant, VisibilityBoundary, and ComplianceClassification definitions",
+              "breaking": false
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "globalCompatibility": {
+    "deprecationNoticeVersions": 2,
+    "migrationWindowDays": 90,
+    "backwardCompatibleWithinMajor": true,
+    "supportedMajorVersions": 2
+  }
+}

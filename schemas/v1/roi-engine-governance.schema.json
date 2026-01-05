@@ -1,0 +1,336 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/v1/roi-engine-governance.schema.json",
+  "title": "Enterprise ROI Engine Governance Manifest",
+  "description": "Declarative governance manifest for the enterprise-roi-engine repository. Defines which organizations, environments, and roles can access CFO-grade financial impact artifacts, ROI calculations, and executive financial summaries. This manifest enforces strict separation between execution authority and visibility. It is purely declarative - no financial calculations, ERP abstractions, or business logic is embedded.",
+  "type": "object",
+  "properties": {
+    "$manifest": {
+      "$ref": "_meta.schema.json#/$defs/ManifestMetadata"
+    },
+    "id": {
+      "$ref": "../common/identifiers.schema.json#/$defs/PolicyId",
+      "description": "Unique ROI governance manifest identifier (UUID v4, immutable)"
+    },
+    "repository": {
+      "const": "enterprise-roi-engine",
+      "description": "Fixed repository identifier for ROI engine governance"
+    },
+    "organizationId": {
+      "$ref": "../common/identifiers.schema.json#/$defs/OrganizationId",
+      "description": "Organization that owns this governance manifest"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Human-readable description of the ROI governance requirements"
+    },
+    "financialArtifactGovernance": {
+      "$ref": "#/$defs/FinancialArtifactGovernance",
+      "description": "Governance for access to financial artifacts and ROI outputs"
+    },
+    "executiveVisibility": {
+      "$ref": "#/$defs/ExecutiveVisibility",
+      "description": "Governance for CFO-grade financial summaries and executive dashboards"
+    },
+    "dataIntegrationGovernance": {
+      "$ref": "#/$defs/DataIntegrationGovernance",
+      "description": "Governance for data integration with external financial systems"
+    },
+    "complianceClassification": {
+      "$ref": "../common/access-governance.schema.json#/$defs/ComplianceClassification",
+      "description": "Compliance classification for financial data"
+    },
+    "effectiveDate": {
+      "$ref": "../common/timestamps.schema.json#/$defs/EffectiveDate",
+      "description": "Date when this governance becomes effective"
+    },
+    "expirationDate": {
+      "oneOf": [
+        { "$ref": "../common/timestamps.schema.json#/$defs/ExpirationDate" },
+        { "type": "null" }
+      ],
+      "description": "Date when this governance expires (null for no expiration)"
+    },
+    "observedAt": {
+      "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+      "description": "When this governance state was observed"
+    },
+    "dataSource": {
+      "$ref": "_meta.schema.json#/$defs/DataSource",
+      "description": "Authoritative source of this governance data"
+    }
+  },
+  "required": [
+    "$manifest",
+    "id",
+    "repository",
+    "organizationId",
+    "financialArtifactGovernance",
+    "executiveVisibility",
+    "effectiveDate",
+    "observedAt"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "FinancialArtifactGovernance": {
+      "type": "object",
+      "properties": {
+        "artifactTypeAccess": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ArtifactTypeAccessGrant"
+          },
+          "description": "Access grants organized by financial artifact type"
+        },
+        "defaultDeny": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, access to financial artifacts is denied unless explicitly granted"
+        },
+        "sensitivityLevels": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FinancialSensitivityLevel"
+          },
+          "description": "Defined sensitivity levels for financial data in this organization"
+        },
+        "auditRequirements": {
+          "$ref": "repository-governance.schema.json#/$defs/AuditRequirements",
+          "description": "Audit logging requirements for financial artifact access"
+        }
+      },
+      "required": ["artifactTypeAccess", "defaultDeny"],
+      "additionalProperties": false,
+      "description": "Governance rules for financial artifact access"
+    },
+    "ArtifactTypeAccessGrant": {
+      "type": "object",
+      "properties": {
+        "artifactType": {
+          "type": "string",
+          "enum": [
+            "roi-calculation",
+            "cost-benefit-analysis",
+            "financial-projection",
+            "budget-impact-assessment",
+            "executive-summary",
+            "detailed-breakdown",
+            "audit-trail",
+            "variance-report"
+          ],
+          "description": "Type of financial artifact"
+        },
+        "accessGrants": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for this artifact type"
+        },
+        "minimumSensitivityLevel": {
+          "type": "string",
+          "description": "Minimum sensitivity clearance required (references sensitivityLevels)"
+        }
+      },
+      "required": ["artifactType", "accessGrants"],
+      "additionalProperties": false,
+      "description": "Access governance for a specific artifact type"
+    },
+    "FinancialSensitivityLevel": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]*$",
+          "description": "Sensitivity level identifier (e.g., PUBLIC, INTERNAL, CONFIDENTIAL, CFO_ONLY)"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Description of what this sensitivity level means"
+        },
+        "rank": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Numeric rank for comparison (higher = more sensitive)"
+        },
+        "requiredRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/identifiers.schema.json#/$defs/RoleId"
+          },
+          "description": "Roles with clearance at this sensitivity level"
+        }
+      },
+      "required": ["level", "rank", "requiredRoles"],
+      "additionalProperties": false,
+      "description": "Definition of a financial sensitivity level"
+    },
+    "ExecutiveVisibility": {
+      "type": "object",
+      "properties": {
+        "cfoAccessGrants": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for CFO-level financial summaries"
+        },
+        "executiveDashboardGrants": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for executive dashboard visibility"
+        },
+        "boardReportGrants": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for board-level financial reports"
+        },
+        "visibilityBoundary": {
+          "$ref": "../common/access-governance.schema.json#/$defs/VisibilityBoundary",
+          "description": "Organizational boundary for executive visibility"
+        },
+        "aggregationRules": {
+          "$ref": "#/$defs/FinancialAggregationRules",
+          "description": "Rules for how financial data is aggregated for different viewer levels"
+        }
+      },
+      "required": ["cfoAccessGrants", "visibilityBoundary"],
+      "additionalProperties": false,
+      "description": "Governance for executive-level financial visibility"
+    },
+    "FinancialAggregationRules": {
+      "type": "object",
+      "properties": {
+        "departmentLevelAggregation": {
+          "type": "boolean",
+          "description": "Whether to aggregate to department level for non-executive viewers"
+        },
+        "minimumAggregationThreshold": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum number of records to include in aggregation"
+        },
+        "excludedFields": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\$\\.[a-zA-Z_][a-zA-Z0-9_.\\[\\]]*$"
+          },
+          "description": "JSON paths to fields excluded from aggregated views"
+        },
+        "roundingRules": {
+          "type": "object",
+          "properties": {
+            "currency": {
+              "type": "string",
+              "enum": ["none", "thousands", "millions", "billions"],
+              "description": "Currency rounding for display purposes"
+            },
+            "percentages": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 4,
+              "description": "Decimal places for percentage values"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Declarative aggregation rules for financial reporting"
+    },
+    "DataIntegrationGovernance": {
+      "type": "object",
+      "properties": {
+        "allowedIntegrations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/IntegrationPermission"
+          },
+          "description": "Permitted integrations with external financial systems"
+        },
+        "dataExportRestrictions": {
+          "$ref": "#/$defs/DataExportRestrictions",
+          "description": "Restrictions on exporting financial data"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Governance for integration with external financial systems"
+    },
+    "IntegrationPermission": {
+      "type": "object",
+      "properties": {
+        "integrationType": {
+          "type": "string",
+          "enum": [
+            "erp-read",
+            "erp-write",
+            "accounting-read",
+            "accounting-write",
+            "reporting-export",
+            "audit-export"
+          ],
+          "description": "Type of integration permitted"
+        },
+        "accessGrants": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for this integration type"
+        },
+        "environments": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/EnvironmentScope"
+          },
+          "description": "Environments where this integration is permitted"
+        }
+      },
+      "required": ["integrationType", "accessGrants", "environments"],
+      "additionalProperties": false,
+      "description": "Permission for a specific integration type"
+    },
+    "DataExportRestrictions": {
+      "type": "object",
+      "properties": {
+        "requireApproval": {
+          "type": "boolean",
+          "description": "Whether data export requires approval"
+        },
+        "approverRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/identifiers.schema.json#/$defs/RoleId"
+          },
+          "description": "Roles that can approve data exports"
+        },
+        "maxExportRecords": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Maximum number of records per export (governance limit)"
+        },
+        "allowedFormats": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["pdf", "csv", "xlsx", "json", "xml"]
+          },
+          "description": "Allowed export formats"
+        },
+        "watermarkRequired": {
+          "type": "boolean",
+          "description": "Whether exported documents must include watermarks"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Restrictions on financial data export"
+    }
+  }
+}

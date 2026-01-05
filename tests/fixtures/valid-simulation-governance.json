@@ -1,0 +1,115 @@
+{
+  "$manifest": {
+    "version": "1.1.0",
+    "contentHash": "sha256:a1b2c3d4e5f678901234567890123456789012345678901234567890123456ab",
+    "createdAt": "2026-01-05T10:00:00.000Z",
+    "lineage": {
+      "root": "sha256:a1b2c3d4e5f678901234567890123456789012345678901234567890123456ab",
+      "parent": null,
+      "depth": 0
+    }
+  },
+  "id": "660e8400-e29b-41d4-a716-446655440010",
+  "repository": "agentics-simulation-engine",
+  "organizationId": "550e8400-e29b-41d4-a716-446655440001",
+  "description": "Governance manifest for the Agentics Simulation Engine. Defines access control for simulation initiation and result visibility.",
+  "simulationInitiation": {
+    "initiatorGrants": [
+      {
+        "roleId": "770e8400-e29b-41d4-a716-446655440020",
+        "accessRole": "initiator",
+        "environments": ["development", "staging", "sandbox"]
+      },
+      {
+        "teamId": "880e8400-e29b-41d4-a716-446655440030",
+        "accessRole": "initiator",
+        "environments": ["sandbox"],
+        "constraints": [
+          {
+            "constraintType": "approval-required",
+            "description": "Requires team lead approval for staging simulations"
+          }
+        ]
+      }
+    ],
+    "defaultDeny": true,
+    "environmentRestrictions": ["development", "staging", "sandbox", "audit-only"],
+    "approvalWorkflow": {
+      "required": true,
+      "approverRoles": ["990e8400-e29b-41d4-a716-446655440040"],
+      "approvalEnvironments": ["staging"],
+      "autoApproveConditions": ["sandbox-environment", "development-environment"]
+    },
+    "auditRequirements": {
+      "logLevel": "comprehensive",
+      "retentionDays": 365,
+      "immutableAuditTrail": true,
+      "realTimeAlerts": false
+    }
+  },
+  "simulationOutputVisibility": {
+    "liveSimulationObservers": [
+      {
+        "roleId": "770e8400-e29b-41d4-a716-446655440020",
+        "accessRole": "observer",
+        "environments": ["development", "staging", "sandbox"]
+      }
+    ],
+    "completedSimulationReaders": [
+      {
+        "roleId": "770e8400-e29b-41d4-a716-446655440020",
+        "accessRole": "read-only",
+        "environments": ["development", "staging", "sandbox", "audit-only"]
+      },
+      {
+        "departmentId": "550e8400-e29b-41d4-a716-446655440002",
+        "accessRole": "read-only",
+        "environments": ["audit-only", "executive-review"]
+      }
+    ],
+    "visibilityBoundary": {
+      "boundaryType": "organization-internal",
+      "redactionLevel": "none"
+    },
+    "resultRedaction": {
+      "sensitiveMetricPaths": [
+        "$.financialMetrics.costBreakdown",
+        "$.resourceUtilization.employeeData"
+      ],
+      "aggregationRequired": false
+    }
+  },
+  "resourceBoundaries": {
+    "maxConcurrentSimulations": {
+      "byEnvironment": {
+        "development": 10,
+        "staging": 5,
+        "sandbox": 20,
+        "production": 2
+      },
+      "byRole": {
+        "770e8400-e29b-41d4-a716-446655440020": 3
+      }
+    },
+    "dataRetentionPolicy": {
+      "simulationResultsRetentionDays": 90,
+      "auditLogRetentionDays": 365
+    }
+  },
+  "complianceClassification": {
+    "dataClassification": "internal",
+    "regulatoryFrameworks": ["SOC2", "ISO27001"],
+    "retentionRequirements": {
+      "minimumDays": 90,
+      "maximumDays": 730
+    }
+  },
+  "effectiveDate": "2026-01-01",
+  "expirationDate": null,
+  "observedAt": "2026-01-05T10:00:00.000Z",
+  "dataSource": {
+    "type": "compliance-system",
+    "identifier": "governance-registry-v2",
+    "extractedAt": "2026-01-05T09:30:00.000Z"
+  }
+}

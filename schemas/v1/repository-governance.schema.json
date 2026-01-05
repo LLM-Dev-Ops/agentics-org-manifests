@@ -1,0 +1,171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/v1/repository-governance.schema.json",
+  "title": "Repository Governance Manifest",
+  "description": "Declarative governance boundaries for Agentics platform repositories. Defines which organizations, environments, and roles can access specific repositories and their outputs. This manifest is purely declarative - it expresses intent and access scope without embedding business logic.",
+  "type": "object",
+  "properties": {
+    "$manifest": {
+      "$ref": "_meta.schema.json#/$defs/ManifestMetadata"
+    },
+    "id": {
+      "$ref": "../common/identifiers.schema.json#/$defs/PolicyId",
+      "description": "Unique governance manifest identifier (UUID v4, immutable)"
+    },
+    "repository": {
+      "$ref": "../common/access-governance.schema.json#/$defs/RepositoryIdentifier",
+      "description": "Repository this governance manifest applies to"
+    },
+    "organizationId": {
+      "$ref": "../common/identifiers.schema.json#/$defs/OrganizationId",
+      "description": "Organization that owns this governance manifest"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Human-readable description of the repository and its governance requirements"
+    },
+    "executionGovernance": {
+      "$ref": "#/$defs/ExecutionGovernance",
+      "description": "Governance rules for who can initiate/execute operations in this repository"
+    },
+    "outputVisibility": {
+      "$ref": "#/$defs/OutputVisibility",
+      "description": "Governance rules for who can view outputs from this repository"
+    },
+    "complianceClassification": {
+      "$ref": "../common/access-governance.schema.json#/$defs/ComplianceClassification",
+      "description": "Compliance classification for this repository's data and outputs"
+    },
+    "effectiveDate": {
+      "$ref": "../common/timestamps.schema.json#/$defs/EffectiveDate",
+      "description": "Date when this governance manifest becomes effective"
+    },
+    "expirationDate": {
+      "oneOf": [
+        { "$ref": "../common/timestamps.schema.json#/$defs/ExpirationDate" },
+        { "type": "null" }
+      ],
+      "description": "Date when this governance manifest expires (null for no expiration)"
+    },
+    "observedAt": {
+      "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+      "description": "When this governance state was observed"
+    },
+    "dataSource": {
+      "$ref": "_meta.schema.json#/$defs/DataSource",
+      "description": "Authoritative source of this governance data"
+    }
+  },
+  "required": [
+    "$manifest",
+    "id",
+    "repository",
+    "organizationId",
+    "executionGovernance",
+    "outputVisibility",
+    "effectiveDate",
+    "observedAt"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ExecutionGovernance": {
+      "type": "object",
+      "properties": {
+        "initiatorGrants": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for entities that can initiate/execute operations"
+        },
+        "defaultDeny": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, access is denied unless explicitly granted (recommended)"
+        },
+        "requiresApproval": {
+          "type": "boolean",
+          "default": false,
+          "description": "If true, execution requires additional approval workflow"
+        },
+        "approverRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/identifiers.schema.json#/$defs/RoleId"
+          },
+          "description": "Roles that can approve execution requests (if requiresApproval is true)"
+        },
+        "auditRequirements": {
+          "$ref": "#/$defs/AuditRequirements",
+          "description": "Audit logging requirements for executions"
+        }
+      },
+      "required": ["initiatorGrants", "defaultDeny"],
+      "additionalProperties": false,
+      "description": "Governance rules for execution/initiation authority"
+    },
+    "OutputVisibility": {
+      "type": "object",
+      "properties": {
+        "liveOutputGrants": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for entities that can view live/in-progress outputs (observer role)"
+        },
+        "completedOutputGrants": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for entities that can view completed outputs (read-only role)"
+        },
+        "visibilityBoundary": {
+          "$ref": "../common/access-governance.schema.json#/$defs/VisibilityBoundary",
+          "description": "Organizational boundary for output visibility"
+        },
+        "sensitiveFieldRedaction": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\$\\.[a-zA-Z_][a-zA-Z0-9_.\\[\\]]*$"
+          },
+          "description": "JSON paths to fields that should be redacted for lower-privilege viewers"
+        }
+      },
+      "required": ["completedOutputGrants", "visibilityBoundary"],
+      "additionalProperties": false,
+      "description": "Governance rules for output visibility (separate from execution authority)"
+    },
+    "AuditRequirements": {
+      "type": "object",
+      "properties": {
+        "logLevel": {
+          "type": "string",
+          "enum": ["minimal", "standard", "comprehensive", "forensic"],
+          "description": "Level of audit logging required"
+        },
+        "retentionDays": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Number of days to retain audit logs"
+        },
+        "immutableAuditTrail": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether audit logs must be stored in an immutable format"
+        },
+        "realTimeAlerts": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to generate real-time alerts for audit events"
+        }
+      },
+      "required": ["logLevel", "retentionDays"],
+      "additionalProperties": false,
+      "description": "Audit logging requirements"
+    }
+  }
+}

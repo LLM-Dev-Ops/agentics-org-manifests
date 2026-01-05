@@ -42,6 +42,13 @@
         "$ref": "#/$defs/Department"
       },
       "description": "List of departments within the organization"
+    },
+    "repositoryGovernance": {
+      "type": "array",
+      "items": {
+        "$ref": "../common/identifiers.schema.json#/$defs/ManifestReference"
+      },
+      "description": "References to repository governance manifests that apply to this organization"
     }
   },
   "required": [

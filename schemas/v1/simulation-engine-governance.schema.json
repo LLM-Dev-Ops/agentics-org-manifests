@@ -1,0 +1,252 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/v1/simulation-engine-governance.schema.json",
+  "title": "Agentics Simulation Engine Governance Manifest",
+  "description": "Declarative governance manifest for the agentics-simulation-engine repository. Defines which organizations, environments, and roles can initiate simulations, view live simulation outputs, or access completed simulation results. This is a purely declarative governance document - it does not contain simulation logic, behavior parameters, or execution code.",
+  "type": "object",
+  "properties": {
+    "$manifest": {
+      "$ref": "_meta.schema.json#/$defs/ManifestMetadata"
+    },
+    "id": {
+      "$ref": "../common/identifiers.schema.json#/$defs/PolicyId",
+      "description": "Unique simulation governance manifest identifier (UUID v4, immutable)"
+    },
+    "repository": {
+      "const": "agentics-simulation-engine",
+      "description": "Fixed repository identifier for simulation engine governance"
+    },
+    "organizationId": {
+      "$ref": "../common/identifiers.schema.json#/$defs/OrganizationId",
+      "description": "Organization that owns this governance manifest"
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 2000,
+      "description": "Human-readable description of the simulation governance requirements"
+    },
+    "simulationInitiation": {
+      "$ref": "#/$defs/SimulationInitiationGovernance",
+      "description": "Governance for who can initiate/trigger simulations"
+    },
+    "simulationOutputVisibility": {
+      "$ref": "#/$defs/SimulationOutputVisibility",
+      "description": "Governance for who can view simulation outputs (live and completed)"
+    },
+    "resourceBoundaries": {
+      "$ref": "#/$defs/ResourceBoundaries",
+      "description": "Declarative resource boundaries for simulation execution (governance, not configuration)"
+    },
+    "complianceClassification": {
+      "$ref": "../common/access-governance.schema.json#/$defs/ComplianceClassification",
+      "description": "Compliance classification for simulation data"
+    },
+    "effectiveDate": {
+      "$ref": "../common/timestamps.schema.json#/$defs/EffectiveDate",
+      "description": "Date when this governance becomes effective"
+    },
+    "expirationDate": {
+      "oneOf": [
+        { "$ref": "../common/timestamps.schema.json#/$defs/ExpirationDate" },
+        { "type": "null" }
+      ],
+      "description": "Date when this governance expires (null for no expiration)"
+    },
+    "observedAt": {
+      "$ref": "../common/timestamps.schema.json#/$defs/ObservedAt",
+      "description": "When this governance state was observed"
+    },
+    "dataSource": {
+      "$ref": "_meta.schema.json#/$defs/DataSource",
+      "description": "Authoritative source of this governance data"
+    }
+  },
+  "required": [
+    "$manifest",
+    "id",
+    "repository",
+    "organizationId",
+    "simulationInitiation",
+    "simulationOutputVisibility",
+    "effectiveDate",
+    "observedAt"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "SimulationInitiationGovernance": {
+      "type": "object",
+      "properties": {
+        "initiatorGrants": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for entities permitted to initiate simulations"
+        },
+        "defaultDeny": {
+          "type": "boolean",
+          "default": true,
+          "description": "If true, simulation initiation is denied unless explicitly granted"
+        },
+        "environmentRestrictions": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/EnvironmentScope"
+          },
+          "description": "Environments where simulations can be initiated (governance boundary)"
+        },
+        "approvalWorkflow": {
+          "$ref": "#/$defs/SimulationApprovalWorkflow",
+          "description": "Approval requirements for simulation initiation"
+        },
+        "auditRequirements": {
+          "$ref": "repository-governance.schema.json#/$defs/AuditRequirements",
+          "description": "Audit logging requirements for simulation initiation"
+        }
+      },
+      "required": ["initiatorGrants", "defaultDeny", "environmentRestrictions"],
+      "additionalProperties": false,
+      "description": "Governance rules for simulation initiation authority"
+    },
+    "SimulationApprovalWorkflow": {
+      "type": "object",
+      "properties": {
+        "required": {
+          "type": "boolean",
+          "description": "Whether approval is required before simulation can execute"
+        },
+        "approverRoles": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/identifiers.schema.json#/$defs/RoleId"
+          },
+          "description": "Roles that can approve simulation requests"
+        },
+        "approvalEnvironments": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/EnvironmentScope"
+          },
+          "description": "Environments where approval is required (may differ from general environments)"
+        },
+        "autoApproveConditions": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "sandbox-environment",
+              "development-environment",
+              "same-team-ownership",
+              "below-resource-threshold"
+            ]
+          },
+          "description": "Conditions under which auto-approval is permitted (declarative)"
+        }
+      },
+      "required": ["required"],
+      "additionalProperties": false,
+      "description": "Declarative approval workflow requirements"
+    },
+    "SimulationOutputVisibility": {
+      "type": "object",
+      "properties": {
+        "liveSimulationObservers": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for entities that can observe live simulation progress"
+        },
+        "completedSimulationReaders": {
+          "type": "array",
+          "items": {
+            "$ref": "../common/access-governance.schema.json#/$defs/AccessGrant"
+          },
+          "description": "Access grants for entities that can read completed simulation results"
+        },
+        "visibilityBoundary": {
+          "$ref": "../common/access-governance.schema.json#/$defs/VisibilityBoundary",
+          "description": "Organizational boundary for simulation output visibility"
+        },
+        "resultRedaction": {
+          "$ref": "#/$defs/SimulationResultRedaction",
+          "description": "Redaction rules for simulation results based on viewer role"
+        }
+      },
+      "required": ["completedSimulationReaders", "visibilityBoundary"],
+      "additionalProperties": false,
+      "description": "Governance rules for simulation output visibility"
+    },
+    "SimulationResultRedaction": {
+      "type": "object",
+      "properties": {
+        "sensitiveMetricPaths": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^\\$\\.[a-zA-Z_][a-zA-Z0-9_.\\[\\]]*$"
+          },
+          "description": "JSON paths to metrics that should be redacted for non-privileged viewers"
+        },
+        "aggregationRequired": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether raw results must be aggregated before visibility to certain roles"
+        },
+        "minimumAggregationSize": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Minimum number of records to aggregate for privacy (if aggregationRequired)"
+        }
+      },
+      "additionalProperties": false,
+      "description": "Declarative redaction rules for simulation results"
+    },
+    "ResourceBoundaries": {
+      "type": "object",
+      "properties": {
+        "maxConcurrentSimulations": {
+          "type": "object",
+          "properties": {
+            "byEnvironment": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "description": "Maximum concurrent simulations per environment (governance limit)"
+            },
+            "byRole": {
+              "type": "object",
+              "additionalProperties": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "description": "Maximum concurrent simulations per role (governance limit)"
+            }
+          },
+          "additionalProperties": false
+        },
+        "dataRetentionPolicy": {
+          "type": "object",
+          "properties": {
+            "simulationResultsRetentionDays": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Days to retain simulation results"
+            },
+            "auditLogRetentionDays": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Days to retain audit logs (may differ from results)"
+            }
+          },
+          "required": ["simulationResultsRetentionDays", "auditLogRetentionDays"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false,
+      "description": "Declarative resource boundaries (governance, not runtime configuration)"
+    }
+  }
+}

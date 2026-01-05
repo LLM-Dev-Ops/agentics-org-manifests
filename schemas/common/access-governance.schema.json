@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://agentics.org/schemas/common/access-governance.schema.json",
+  "title": "Access Governance Types",
+  "description": "Shared access governance type definitions for repository and system access control. These are purely declarative governance boundaries, not runtime logic.",
+  "$defs": {
+    "EnvironmentScope": {
+      "type": "string",
+      "enum": [
+        "development",
+        "staging",
+        "sandbox",
+        "audit-only",
+        "executive-review",
+        "production"
+      ],
+      "description": "Environment scope for access control. Determines in which environments a particular access grant is valid."
+    },
+    "AccessRole": {
+      "type": "string",
+      "enum": [
+        "initiator",
+        "observer",
+        "read-only"
+      ],
+      "description": "Access role type. Initiator can execute/trigger, observer can view live outputs, read-only can only view completed artifacts."
+    },
+    "RepositoryIdentifier": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9-]*$",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Repository identifier in kebab-case format (e.g., agentics-simulation-engine)"
+    },
+    "AccessGrant": {
+      "type": "object",
+      "properties": {
+        "roleId": {
+          "$ref": "identifiers.schema.json#/$defs/RoleId",
+          "description": "Role that receives this access grant"
+        },
+        "teamId": {
+          "$ref": "identifiers.schema.json#/$defs/TeamId",
+          "description": "Team that receives this access grant (alternative to roleId)"
+        },
+        "departmentId": {
+          "$ref": "identifiers.schema.json#/$defs/DepartmentId",
+          "description": "Department that receives this access grant (alternative to roleId/teamId)"
+        },
+        "accessRole": {
+          "$ref": "#/$defs/AccessRole",
+          "description": "Type of access being granted"
+        },
+        "environments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EnvironmentScope"
+          },
+          "minItems": 1,
+          "uniqueItems": true,
+          "description": "Environments in which this access grant is valid"
+        },
+        "constraints": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/AccessConstraint"
+          },
+          "description": "Additional constraints on this access grant"
+        }
+      },
+      "required": ["accessRole", "environments"],
+      "oneOf": [
+        { "required": ["roleId"] },
+        { "required": ["teamId"] },
+        { "required": ["departmentId"] }
+      ],
+      "additionalProperties": false,
+      "description": "A declarative access grant to a role, team, or department"
+    },
+    "AccessConstraint": {
+      "type": "object",
+      "properties": {
+        "constraintType": {
+          "type": "string",
+          "enum": [
+            "time-window",
+            "approval-required",
+            "audit-logged",
+            "rate-limited",
+            "geographic-restriction"
+          ],
+          "description": "Type of access constraint"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Human-readable description of the constraint"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true,
+          "description": "Constraint-specific parameters (declarative, not executable)"
+        }
+      },
+      "required": ["constraintType"],
+      "additionalProperties": false,
+      "description": "Declarative constraint on an access grant"
+    },
+    "VisibilityBoundary": {
+      "type": "object",
+      "properties": {
+        "boundaryType": {
+          "type": "string",
+          "enum": [
+            "organization-internal",
+            "cross-organization",
+            "partner-visible",
+            "public-aggregated"
+          ],
+          "description": "Type of visibility boundary for outputs"
+        },
+        "allowedOrganizations": {
+          "type": "array",
+          "items": {
+            "$ref": "identifiers.schema.json#/$defs/OrganizationId"
+          },
+          "description": "Organizations permitted to view outputs (for cross-organization boundary)"
+        },
+        "redactionLevel": {
+          "type": "string",
+          "enum": ["none", "pii-redacted", "aggregated-only", "summary-only"],
+          "description": "Level of data redaction applied to outputs for this boundary"
+        }
+      },
+      "required": ["boundaryType"],
+      "additionalProperties": false,
+      "description": "Declarative visibility boundary for outputs"
+    },
+    "ComplianceClassification": {
+      "type": "object",
+      "properties": {
+        "dataClassification": {
+          "type": "string",
+          "enum": [
+            "public",
+            "internal",
+            "confidential",
+            "restricted",
+            "regulatory-sensitive"
+          ],
+          "description": "Data classification level for compliance purposes"
+        },
+        "regulatoryFrameworks": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "SOX",
+              "GDPR",
+              "HIPAA",
+              "SOC2",
+              "PCI-DSS",
+              "CCPA",
+              "FISMA",
+              "ISO27001"
+            ]
+          },
+          "description": "Applicable regulatory frameworks"
+        },
+        "retentionRequirements": {
+          "type": "object",
+          "properties": {
+            "minimumDays": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Minimum retention period in days"
+            },
+            "maximumDays": {
+              "type": "integer",
+              "minimum": 0,
+              "description": "Maximum retention period in days (for data minimization)"
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "required": ["dataClassification"],
+      "additionalProperties": false,
+      "description": "Compliance classification for access governance"
+    }
+  }
+}
