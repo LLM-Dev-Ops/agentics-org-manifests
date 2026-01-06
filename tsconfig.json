@@ -27,7 +27,8 @@
     "registry/**/*.ts",
     "references/**/*.ts",
     "tests/**/*.ts",
-    "index.ts"
+    "index.ts",
+    "server.ts"
   ],
   "exclude": [
     "node_modules",

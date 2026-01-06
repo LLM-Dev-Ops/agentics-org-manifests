@@ -1,0 +1,28 @@
+# Ignore node_modules - will be installed during build
+node_modules/
+
+# Ignore dist - will be built during build
+dist/
+
+# Git
+.git/
+.gitignore
+
+# Development files
+*.md
+.claude/
+tests/
+*.test.ts
+.env*
+.swarm/
+.hive-mind/
+.claude-flow/
+memory/
+coordination/
+*.db
+*.db-journal
+*.sqlite
+
+# Keep package files for build
+!package.json
+!package-lock.json
