@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://agentics.org/schemas/v1/request.schema.json",
+  "title": "Manifest API Request",
+  "description": "Schema for validating incoming manifest API requests at the HTTP boundary. Ensures request is a valid manifest-like object before detailed validation.",
+  "type": "object",
+  "minProperties": 1,
+  "anyOf": [
+    {
+      "description": "Manifest with explicit type declaration",
+      "properties": {
+        "$manifest_type": {
+          "type": "string",
+          "enum": ["organization", "team", "role", "capability", "policy"]
+        }
+      },
+      "required": ["$manifest_type"]
+    },
+    {
+      "description": "Manifest with standard metadata",
+      "properties": {
+        "$id": { "type": "string", "minLength": 1 },
+        "$schema_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$"
+        }
+      },
+      "required": ["$id"]
+    },
+    {
+      "description": "Organization manifest by structure",
+      "properties": {
+        "organization_id": { "type": "string", "minLength": 1 }
+      },
+      "required": ["organization_id"]
+    },
+    {
+      "description": "Organization manifest by id",
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "name": { "type": "string", "minLength": 1 },
+        "legalName": { "type": "string", "minLength": 1 }
+      },
+      "required": ["id", "name"]
+    },
+    {
+      "description": "Organization manifest by legal structure",
+      "properties": {
+        "legal_status": { "type": "string", "minLength": 1 }
+      },
+      "required": ["legal_status"]
+    },
+    {
+      "description": "Organization manifest by jurisdiction",
+      "properties": {
+        "jurisdiction": { "type": "string", "minLength": 1 }
+      },
+      "required": ["jurisdiction"]
+    },
+    {
+      "description": "Team manifest by team_id",
+      "properties": {
+        "team_id": { "type": "string", "minLength": 1 }
+      },
+      "required": ["team_id"]
+    },
+    {
+      "description": "Team manifest by structure",
+      "properties": {
+        "members": { "type": "array" },
+        "organization_ref": { "type": "string", "minLength": 1 }
+      },
+      "required": ["members", "organization_ref"]
+    },
+    {
+      "description": "Policy manifest by policy_id",
+      "properties": {
+        "policy_id": { "type": "string", "minLength": 1 }
+      },
+      "required": ["policy_id"]
+    },
+    {
+      "description": "Policy manifest by structure",
+      "properties": {
+        "constraints": { "type": "object" },
+        "effective_date": { "type": "string" }
+      },
+      "required": ["constraints", "effective_date"]
+    },
+    {
+      "description": "Role manifest by role_id",
+      "properties": {
+        "role_id": { "type": "string", "minLength": 1 }
+      },
+      "required": ["role_id"]
+    },
+    {
+      "description": "Role manifest by structure",
+      "properties": {
+        "permissions": { "type": "array" },
+        "responsibilities": { "type": "array" }
+      },
+      "required": ["permissions", "responsibilities"]
+    },
+    {
+      "description": "Capability manifest by capability_id",
+      "properties": {
+        "capability_id": { "type": "string", "minLength": 1 }
+      },
+      "required": ["capability_id"]
+    },
+    {
+      "description": "Capability manifest by skills",
+      "properties": {
+        "skills": { "type": "array" }
+      },
+      "required": ["skills"]
+    },
+    {
+      "description": "Manifest with $manifest metadata block",
+      "properties": {
+        "$manifest": { "type": "object" }
+      },
+      "required": ["$manifest"]
+    }
+  ]
+}

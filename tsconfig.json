@@ -26,7 +26,9 @@
     "versioning/**/*.ts",
     "registry/**/*.ts",
     "references/**/*.ts",
+    "contracts/**/*.ts",
     "tests/**/*.ts",
+    "schemas/**/*.json",
     "index.ts",
     "server.ts"
   ],

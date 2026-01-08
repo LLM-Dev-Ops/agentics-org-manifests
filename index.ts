@@ -88,6 +88,28 @@ export {
   type ResolutionErrorCode,
 } from './references/index';
 
+// Export contracts module (HTTP boundary validation)
+export {
+  validateRequestContract,
+  createExecutionProof,
+  validateAndWrapRequest,
+  generateExecutionId,
+  clearValidatorCache,
+  ExecutionLayers,
+  type ExecutionId,
+  type LayerId,
+  type ExecutionLayer,
+  type ExecutionGraphNode,
+  type ExecutionGraph,
+  type ExecutionProof,
+  type ContractValidationError,
+  type ContractValidationResult,
+  type ValidatedRequest,
+  type ContractEnforcedResponse,
+  type ContractEnforcedErrorResponse,
+  type RequestMetadata,
+} from './contracts/index';
+
 // Export schema paths for consumers
 export const SCHEMA_PATHS = {
   v1: {
@@ -97,6 +119,7 @@ export const SCHEMA_PATHS = {
     capability: './schemas/v1/capability.schema.json',
     policy: './schemas/v1/policy.schema.json',
     meta: './schemas/v1/_meta.schema.json',
+    request: './schemas/v1/request.schema.json',
   },
   common: {
     primitives: './schemas/common/primitives.schema.json',

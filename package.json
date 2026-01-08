@@ -29,6 +29,10 @@
     "./references": {
       "types": "./dist/references/index.d.ts",
       "import": "./dist/references/index.js"
+    },
+    "./contracts": {
+      "types": "./dist/contracts/index.d.ts",
+      "import": "./dist/contracts/index.js"
     }
   },
   "scripts": {
