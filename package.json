@@ -57,6 +57,7 @@
     "vitest": "^1.0.0"
   },
   "dependencies": {
+    "@claude-flow/cli": "^3.0.0-alpha.64",
     "ajv": "^8.12.0",
     "ajv-formats": "^2.1.1",
     "claude-flow": "^2.7.47"
