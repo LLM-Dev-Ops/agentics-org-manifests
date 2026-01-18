@@ -49,6 +49,13 @@
         "$ref": "../common/identifiers.schema.json#/$defs/ManifestReference"
       },
       "description": "References to repository governance manifests that apply to this organization"
+    },
+    "stripeCustomerId": {
+      "oneOf": [
+        { "$ref": "../common/identifiers.schema.json#/$defs/StripeCustomerId" },
+        { "type": "null" }
+      ],
+      "description": "Stripe customer ID for metering linkage (null until first usage event triggers lazy creation)"
     }
   },
   "required": [

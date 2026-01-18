@@ -41,6 +41,11 @@
       "type": "string",
       "pattern": "^manifest://[a-z-]+/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}(@(\\d+\\.\\d+\\.\\d+|sha256:[a-f0-9]{64}|latest))?(#/.+)?$",
       "description": "Cross-manifest reference URI format: manifest://{type}/{id}@{version}#{path}"
+    },
+    "StripeCustomerId": {
+      "type": "string",
+      "pattern": "^cus_[a-zA-Z0-9]{14,}$",
+      "description": "Stripe customer identifier (starts with cus_ prefix)"
     }
   }
 }

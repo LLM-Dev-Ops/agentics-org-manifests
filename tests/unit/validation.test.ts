@@ -434,6 +434,108 @@ describe('AC-02: Schema Validation', () => {
     });
   });
 
+  describe('Stripe Customer ID Field', () => {
+    it('should validate organization with valid stripeCustomerId', () => {
+      const ajv = createAjvWithSchemas();
+      const organizationSchema = JSON.parse(
+        readFileSync(join(SCHEMAS_PATH, 'v1/organization.schema.json'), 'utf-8')
+      );
+
+      const orgWithStripe = {
+        $manifest: {
+          version: '1.0.0',
+          contentHash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+          createdAt: '2024-01-15T10:30:00.000Z',
+        },
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        name: 'Test Org',
+        legalName: 'Test Legal Name',
+        incorporationCountry: 'US',
+        fiscalYearEnd: '12-31',
+        observedAt: '2024-01-15T10:30:00.000Z',
+        dataSource: {
+          type: 'legal-records',
+          identifier: 'test',
+          extractedAt: '2024-01-15T10:00:00.000Z',
+        },
+        stripeCustomerId: 'cus_NffrFeUfNV2Hib',
+      };
+
+      const validate = ajv.compile(organizationSchema);
+      const isValid = validate(orgWithStripe);
+
+      if (!isValid) {
+        console.error('Validation errors:', validate.errors);
+      }
+
+      expect(isValid).toBe(true);
+    });
+
+    it('should validate organization with null stripeCustomerId (lazy creation)', () => {
+      const ajv = createAjvWithSchemas();
+      const organizationSchema = JSON.parse(
+        readFileSync(join(SCHEMAS_PATH, 'v1/organization.schema.json'), 'utf-8')
+      );
+
+      const orgWithNullStripe = {
+        $manifest: {
+          version: '1.0.0',
+          contentHash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+          createdAt: '2024-01-15T10:30:00.000Z',
+        },
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        name: 'Test Org',
+        legalName: 'Test Legal Name',
+        incorporationCountry: 'US',
+        fiscalYearEnd: '12-31',
+        observedAt: '2024-01-15T10:30:00.000Z',
+        dataSource: {
+          type: 'legal-records',
+          identifier: 'test',
+          extractedAt: '2024-01-15T10:00:00.000Z',
+        },
+        stripeCustomerId: null,
+      };
+
+      const validate = ajv.compile(organizationSchema);
+      const isValid = validate(orgWithNullStripe);
+
+      expect(isValid).toBe(true);
+    });
+
+    it('should reject organization with invalid stripeCustomerId format', () => {
+      const ajv = createAjvWithSchemas();
+      const organizationSchema = JSON.parse(
+        readFileSync(join(SCHEMAS_PATH, 'v1/organization.schema.json'), 'utf-8')
+      );
+
+      const orgWithInvalidStripe = {
+        $manifest: {
+          version: '1.0.0',
+          contentHash: 'sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+          createdAt: '2024-01-15T10:30:00.000Z',
+        },
+        id: '550e8400-e29b-41d4-a716-446655440001',
+        name: 'Test Org',
+        legalName: 'Test Legal Name',
+        incorporationCountry: 'US',
+        fiscalYearEnd: '12-31',
+        observedAt: '2024-01-15T10:30:00.000Z',
+        dataSource: {
+          type: 'legal-records',
+          identifier: 'test',
+          extractedAt: '2024-01-15T10:00:00.000Z',
+        },
+        stripeCustomerId: 'invalid_customer_id',
+      };
+
+      const validate = ajv.compile(organizationSchema);
+      const isValid = validate(orgWithInvalidStripe);
+
+      expect(isValid).toBe(false);
+    });
+  });
+
   describe('Additional Properties Constraint', () => {
     it('should reject manifest with additional undefined properties', () => {
       const ajv = createAjvWithSchemas();

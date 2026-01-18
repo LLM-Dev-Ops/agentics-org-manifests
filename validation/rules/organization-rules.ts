@@ -74,6 +74,11 @@ export const VALID_GOVERNANCE_TYPES: ReadonlyArray<string> = Object.freeze([
 ]);
 
 /**
+ * Stripe customer ID pattern (starts with cus_ prefix)
+ */
+export const STRIPE_CUSTOMER_ID_PATTERN = /^cus_[a-zA-Z0-9]{14,}$/;
+
+/**
  * Validate that organization manifest has all required sections
  */
 export function validateOrganizationCompleteness(
@@ -409,6 +414,139 @@ export function validateNoSpeculativeData(
 }
 
 /**
+ * Validate Stripe customer ID format if present
+ */
+export function validateStripeCustomerId(
+  manifest: unknown,
+  options: ValidationOptions = {}
+): ValidationResult {
+  const startTime = Date.now();
+  const errors: ValidationError[] = [];
+  const warnings: ValidationWarning[] = [];
+  const strictnessLevel = options.strictnessLevel ?? 'STRICT';
+
+  if (typeof manifest !== 'object' || manifest === null) {
+    return createSuccessResult({
+      schemaVersion: '1.0.0',
+      validatedAt: new Date().toISOString(),
+      checksPerformed: Object.freeze(['stripe_customer_id_validation']),
+      strictnessLevel,
+      durationMs: Date.now() - startTime,
+    });
+  }
+
+  const obj = manifest as Record<string, unknown>;
+  const stripeCustomerId = obj['stripeCustomerId'];
+
+  // stripeCustomerId is optional (nullable) - only validate if present and non-null
+  if (stripeCustomerId !== undefined && stripeCustomerId !== null) {
+    if (typeof stripeCustomerId !== 'string') {
+      errors.push(
+        createValidationError(
+          ValidationErrorCodes.TYPE_MISMATCH,
+          '$.stripeCustomerId',
+          'stripeCustomerId must be a string or null',
+          { actualType: typeof stripeCustomerId }
+        )
+      );
+    } else if (!STRIPE_CUSTOMER_ID_PATTERN.test(stripeCustomerId)) {
+      errors.push(
+        createValidationError(
+          ValidationErrorCodes.PATTERN_INVALID,
+          '$.stripeCustomerId',
+          `Invalid Stripe customer ID format: '${stripeCustomerId}'. Must match pattern: cus_XXXXXXXXXXXXXX`,
+          { value: stripeCustomerId, pattern: STRIPE_CUSTOMER_ID_PATTERN.source }
+        )
+      );
+    }
+  }
+
+  const schemaVersion = obj['$schema_version'] as string || '1.0.0';
+
+  const metadata = {
+    schemaVersion,
+    validatedAt: new Date().toISOString(),
+    checksPerformed: Object.freeze(['stripe_customer_id_validation']),
+    strictnessLevel,
+    durationMs: Date.now() - startTime,
+  };
+
+  if (errors.length === 0) {
+    return createSuccessResult(metadata, warnings);
+  }
+
+  return createFailureResult(errors, metadata, warnings);
+}
+
+/**
+ * Validate deletion safety: prevent DISSOLVED status if Stripe customer exists
+ * Per SPARC requirement: orgs with Stripe customers require soft delete only
+ */
+export function validateDeletionSafety(
+  manifest: unknown,
+  options: ValidationOptions = {}
+): ValidationResult {
+  const startTime = Date.now();
+  const errors: ValidationError[] = [];
+  const warnings: ValidationWarning[] = [];
+  const strictnessLevel = options.strictnessLevel ?? 'STRICT';
+
+  if (typeof manifest !== 'object' || manifest === null) {
+    return createSuccessResult({
+      schemaVersion: '1.0.0',
+      validatedAt: new Date().toISOString(),
+      checksPerformed: Object.freeze(['deletion_safety']),
+      strictnessLevel,
+      durationMs: Date.now() - startTime,
+    });
+  }
+
+  const obj = manifest as Record<string, unknown>;
+  const stripeCustomerId = obj['stripeCustomerId'];
+
+  // Get organization status
+  let status: unknown = null;
+  if ('legal_status' in obj && typeof obj['legal_status'] === 'object' && obj['legal_status'] !== null) {
+    const legalStatus = obj['legal_status'] as Record<string, unknown>;
+    status = legalStatus['status'];
+  } else if ('status' in obj) {
+    status = obj['status'];
+  }
+
+  // If org has a Stripe customer and status is DISSOLVED, reject
+  if (stripeCustomerId !== undefined && stripeCustomerId !== null && status === 'DISSOLVED') {
+    errors.push(
+      createValidationError(
+        ValidationErrorCodes.INTEGRITY_VIOLATION,
+        '$.status',
+        'Cannot dissolve organization with active Stripe customer. Use SUSPENDED status for soft delete.',
+        {
+          stripeCustomerId,
+          currentStatus: status,
+          suggestion: 'Set status to SUSPENDED instead of DISSOLVED',
+        }
+      )
+    );
+  }
+
+  const schemaVersion = obj['$schema_version'] as string || '1.0.0';
+
+  const metadata = {
+    schemaVersion,
+    validatedAt: new Date().toISOString(),
+    checksPerformed: Object.freeze(['deletion_safety']),
+    strictnessLevel,
+    durationMs: Date.now() - startTime,
+  };
+
+  if (errors.length === 0) {
+    return createSuccessResult(metadata, warnings);
+  }
+
+  return createFailureResult(errors, metadata, warnings);
+}
+
+/**
  * Validate organization manifest against all organization-specific rules
  */
 export function validateOrganizationRules(
@@ -424,6 +562,8 @@ export function validateOrganizationRules(
     validateEntityType(manifest, options),
     validateOrganizationStatus(manifest, options),
     validateNoSpeculativeData(manifest, options),
+    validateStripeCustomerId(manifest, options),
+    validateDeletionSafety(manifest, options),
   ];
 
   // Merge all errors and warnings

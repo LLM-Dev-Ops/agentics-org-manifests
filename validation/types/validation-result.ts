@@ -164,6 +164,7 @@ export const ValidationErrorCodes = {
   // Pattern errors
   FORBIDDEN_PATTERN_DETECTED: 'PATTERN_001',
   PLACEHOLDER_DETECTED: 'PATTERN_002',
+  PATTERN_INVALID: 'PATTERN_003',
 
   // Immutability errors
   IMMUTABILITY_VIOLATION: 'IMMUTABLE_001',
@@ -180,6 +181,9 @@ export const ValidationErrorCodes = {
   ARRAY_INDEX_OUT_OF_BOUNDS: 'STRUCT_003',
   PATH_NOT_FOUND: 'STRUCT_004',
   PATH_TYPE_MISMATCH: 'STRUCT_005',
+
+  // Integrity errors
+  INTEGRITY_VIOLATION: 'INTEGRITY_001',
 } as const;
 
 /**
