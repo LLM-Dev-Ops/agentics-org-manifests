@@ -147,13 +147,12 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // Health check - no execution proof needed for health endpoint
+  // Health check
   if (url.pathname === '/' || url.pathname === '/health') {
     res.writeHead(200);
     res.end(JSON.stringify({
       status: 'healthy',
-      service: 'agentics-manifests',
-      execution_id: executionId,
+      timestamp: new Date().toISOString(),
     }));
     return;
   }
@@ -175,15 +174,14 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
-  // POST /v1/manifests - Select manifest (used by agentics plan command)
-  // This endpoint accepts a query object, not a full manifest, so we use simpler validation
+  // POST /v1/manifests - Select manifest based on query
   if (url.pathname === '/v1/manifests' && req.method === 'POST') {
     try {
       // Layer 1: Parse JSON request
       layersExecuted.push(ExecutionLayers.CONTRACT_VALIDATION);
 
       const body = await readBody(req);
-      let payload: { query?: string; criteria?: unknown };
+      let payload: { query?: string };
       try {
         payload = JSON.parse(body);
       } catch {
@@ -201,45 +199,39 @@ const server = http.createServer(async (req, res) => {
       // Layer 2: Manifest selection
       layersExecuted.push(ExecutionLayers.MANIFEST_PARSING);
 
-      // Extract query from payload
       const query = payload.query || '';
+
+      // Derive a name from the query (use first few words, fallback to default)
+      const derivedName = query.trim()
+        ? query.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 64)
+        : 'default-manifest';
 
       // Layer 3: Response generation
       layersExecuted.push(ExecutionLayers.RESPONSE_GENERATION);
 
-      // Generate manifest reference ID
       const manifestId = `manifest-${executionId}`;
       const timestamp = new Date().toISOString();
 
-      // Create execution metadata in Cloud Run format (required by CLI)
-      const executionMetadata = {
-        service: 'agentics-org-manifests',
-        version: CURRENT_SCHEMA_VERSION,
-        timestamp,
-        simulation_id: executionId,
-        layers_executed: layersExecuted,
-        execution_proof: {
-          layerRecords: layersExecuted.map((layer, idx) => ({
-            layer,
-            startTime: new Date(startTime + idx).toISOString(),
-            endTime: new Date(startTime + idx + 1).toISOString(),
-            durationMs: 1,
-            success: true,
-          })),
-        },
-      };
+      // Use X-Correlation-ID header if provided, otherwise use executionId
+      const traceId = (req.headers['x-correlation-id'] as string) || executionId;
 
-      // Return ManifestReference response
       res.writeHead(200);
       res.end(JSON.stringify({
-        id: manifestId,
-        type: 'ManifestReference',
-        repository: REPOSITORY_INFO.name,
-        version: CURRENT_SCHEMA_VERSION,
-        query,
-        created_at: timestamp,
-        checksum: `sha256:${Buffer.from(manifestId + timestamp).toString('base64').slice(0, 32)}`,
-        execution_metadata: executionMetadata,
+        manifest: {
+          id: manifestId,
+          name: derivedName,
+          version: '1.0.0',
+          modules: ['simulation', 'planning', 'governance'],
+          config: {
+            simulation_resolution: 'enterprise',
+            governance_level: 'standard',
+          },
+        },
+        execution_metadata: {
+          trace_id: traceId,
+          timestamp,
+          service: 'agentics-org-manifests',
+        },
       }));
 
     } catch (error) {
